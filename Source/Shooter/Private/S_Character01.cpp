@@ -5,6 +5,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 
 // Sets default values
 AS_Character01::AS_Character01()
@@ -12,10 +13,21 @@ AS_Character01::AS_Character01()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	bUseFirstPersonView = true;
+	FpsCameraSocket = TEXT("SCK_Camera");
+
 	// Create a camera component
 	FPSCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FPSCamera"));
 	FPSCameraComponent->bUsePawnControlRotation = true; // Rotate the camera based on the controller
-	FPSCameraComponent->SetupAttachment(RootComponent);
+	FPSCameraComponent->SetupAttachment(GetMesh(), FpsCameraSocket);
+
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+	CameraBoom->SetupAttachment(RootComponent);
+
+	// Create a camera component
+	TPSCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TPSCamera"));
+	TPSCameraComponent->SetupAttachment(CameraBoom);
 
 }
 
@@ -30,6 +42,36 @@ void AS_Character01::BeginPlay()
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		}
+	}
+
+	SwitchCamera();
+	
+}
+
+void AS_Character01::SwitchCamera()
+{
+	if (bUseFirstPersonView)
+	{
+		FPSCameraComponent->SetActive(true);
+		TPSCameraComponent->SetActive(false);
+	}
+	else
+	{
+		FPSCameraComponent->SetActive(false);
+		TPSCameraComponent->SetActive(true);
+	}
+
+	// Forzar al PlayerController a usar la cámara correcta
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	{
+		if (bUseFirstPersonView)
+		{
+			PC->SetViewTargetWithBlend(this); // Usa la cámara por defecto (FPSCamera si está activa)
+		}
+		else
+		{
+			PC->SetViewTargetWithBlend(this); // TPSCamera está activa dentro del personaje
 		}
 	}
 	

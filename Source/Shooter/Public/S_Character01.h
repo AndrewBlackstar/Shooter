@@ -8,6 +8,8 @@
 #include "S_Character01.generated.h"
 
 class UCameraComponent;
+class USpringArmComponent;
+
 
 UCLASS()
 class SHOOTER_API AS_Character01 : public ACharacter
@@ -16,14 +18,26 @@ class SHOOTER_API AS_Character01 : public ACharacter
 
 protected:
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	UCameraComponent* FPSCameraComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	UCameraComponent* TPSCameraComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	USpringArmComponent* CameraBoom;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera)
+	FName FpsCameraSocket;
 	
 
 protected:
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Aiming")
 	bool bIsLookInversion;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Aiming")
+	bool bUseFirstPersonView;
 
 public:
 
@@ -57,6 +71,8 @@ protected:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	void SwitchCamera();
 
 public:	
 	// Called every frame
