@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+Ôªø// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "S_Character01.h"
@@ -6,6 +6,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 AS_Character01::AS_Character01()
@@ -15,6 +16,9 @@ AS_Character01::AS_Character01()
 
 	bUseFirstPersonView = true;
 	FpsCameraSocket = TEXT("SCK_Camera");
+
+	SprintSpeed = 2100;
+	RunSpeed = 600;
 
 	// Create a camera component
 	FPSCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FPSCamera"));
@@ -28,6 +32,9 @@ AS_Character01::AS_Character01()
 	// Create a camera component
 	TPSCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TPSCamera"));
 	TPSCameraComponent->SetupAttachment(CameraBoom);
+
+	// üëá HABILITAR AGACHARSE
+	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
 
 }
 
@@ -44,36 +51,34 @@ void AS_Character01::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
-
+	BaseWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
 	SwitchCamera();
 	
 }
 
 void AS_Character01::SwitchCamera()
 {
+	bUseFirstPersonView = !bUseFirstPersonView;
+
 	if (bUseFirstPersonView)
 	{
-		FPSCameraComponent->SetActive(true);
-		TPSCameraComponent->SetActive(false);
+		TPSCameraComponent->Deactivate();
+		FPSCameraComponent->Activate();
 	}
 	else
 	{
-		FPSCameraComponent->SetActive(false);
-		TPSCameraComponent->SetActive(true);
+		FPSCameraComponent->Deactivate();
+		TPSCameraComponent->Activate();
 	}
 
-	// Forzar al PlayerController a usar la c·mara correcta
+	// Aplicar la c√°mara al PlayerController
 	if (APlayerController* PC = Cast<APlayerController>(GetController()))
 	{
-		if (bUseFirstPersonView)
-		{
-			PC->SetViewTargetWithBlend(this); // Usa la c·mara por defecto (FPSCamera si est· activa)
-		}
-		else
-		{
-			PC->SetViewTargetWithBlend(this); // TPSCamera est· activa dentro del personaje
-		}
+		UCameraComponent* ActiveCamera = bUseFirstPersonView ? FPSCameraComponent : TPSCameraComponent;
+		PC->SetViewTargetWithBlend(this, 0.25f); // Usa el blend para transici√≥n suave
 	}
+
+	
 	
 }
 
@@ -100,6 +105,16 @@ void AS_Character01::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 		//Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AS_Character01::Look);
+
+		//Switching Camera
+		EnhancedInputComponent->BindAction(SwitchCameraAction, ETriggerEvent::Started, this, &AS_Character01::SwitchCamera);
+
+		//Sprinting
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AS_Character01::StartSprint);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AS_Character01::StopSprint);
+		//Crouching
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AS_Character01::StartCrouch);
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AS_Character01::StopCrouch);
 	}
 }
 
@@ -139,3 +154,33 @@ void AS_Character01::StopJumping()
 {
 	Super::StopJumping();
 }
+
+void AS_Character01::StartSprint()
+{
+	GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
+}
+
+void AS_Character01::StopSprint()
+{
+	GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
+	
+}
+
+void AS_Character01::StartCrouch()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Crouch pressed"));
+	Crouch();
+}
+
+void AS_Character01::StopCrouch()
+{
+	UnCrouch();
+}
+
+
+
+
+
+
+
+

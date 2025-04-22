@@ -39,6 +39,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Aiming")
 	bool bUseFirstPersonView;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement")
+	float SprintSpeed;
+
+		UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement")
+	float RunSpeed;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement")
+	float BaseWalkSpeed;
+
+
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -52,6 +62,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* LookAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* SwitchCameraAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* SprintAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* CrouchAction;
 
 public:
 	// Sets default values for this character's properties
@@ -67,6 +86,14 @@ protected:
 	// Called for jump input
 	virtual void Jump() override;
 	virtual void StopJumping() override;
+
+	// Called for sprint input
+	void StartSprint();
+	void StopSprint();
+
+	// Called for crouch input
+	void StartCrouch() ;
+	void StopCrouch();
 
 protected:
 	// Called when the game starts or when spawned
