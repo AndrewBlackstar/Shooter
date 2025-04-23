@@ -118,6 +118,7 @@ void AS_Character01::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	}
 }
 
+
 void AS_Character01::Move(const FInputActionValue& Value)
 {
 	FVector2D MovementVector = Value.Get<FVector2D>();
@@ -177,6 +178,15 @@ void AS_Character01::StopCrouch()
 	UnCrouch();
 }
 
+void AS_Character01::AddKey(FName NewKeyName)
+{
+	DoorKeys.Add(NewKeyName);
+}
+
+bool AS_Character01::HasKey(FName KeyName)
+{
+	return DoorKeys.Contains(KeyName);
+}
 
 
 

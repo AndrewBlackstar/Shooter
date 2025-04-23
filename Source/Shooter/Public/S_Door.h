@@ -6,24 +6,38 @@
 #include "GameFramework/Actor.h"
 #include "S_Door.generated.h"
 
+class UBoxComponent;
+
 UCLASS()
 class SHOOTER_API AS_Door : public AActor
 {
 	GENERATED_BODY()
 
-	UPROPERTY(VisibleAnywhere, Category = "Components")
+protected:
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USceneComponent* CustomRootComponent;
 
-	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UStaticMeshComponent* DoorMesh;
 
-	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UStaticMeshComponent* DoorFrameMesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UBoxComponent* DoorCollision;
+
+protected:
 
 	UPROPERTY(EditAnywhere, Category = "My Door")
 	float DoorOpenAngle;
 
-	
+	UPROPERTY(EditAnywhere, Category = "My Door")
+	bool bIsDoorOpen;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Door")
+	FName DoorKeyName;
+
 public:	
 	// Sets default values for this actor's properties
 	AS_Door();
@@ -38,4 +52,7 @@ public:
 
 	void OpenDoor();
 
+	UFUNCTION()
+	void CheckForPlayerOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	
 };

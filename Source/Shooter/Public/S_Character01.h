@@ -30,8 +30,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera)
 	FName FpsCameraSocket;
 	
-
-protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = key)
+	TArray <FName> DoorKeys;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Aiming")
 	bool bIsLookInversion;
@@ -107,5 +107,9 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	void AddKey(FName NewKeyName);
+
+	bool HasKey(FName KeyName);
 
 };
