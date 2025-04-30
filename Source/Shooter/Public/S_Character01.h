@@ -9,7 +9,7 @@
 
 class UCameraComponent;
 class USpringArmComponent;
-
+class AS_Weapon;
 
 UCLASS()
 class SHOOTER_API AS_Character01 : public ACharacter
@@ -48,6 +48,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement")
 	float BaseWalkSpeed;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	TSubclassOf<AS_Weapon> InitialWeaponClass;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Weapon")
+	AS_Weapon* CurrentWeapon;
+
 
 public:
 
@@ -72,9 +78,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* CrouchAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* WeaponAction;
+
 public:
 	// Sets default values for this character's properties
 	AS_Character01();
+
+	virtual FVector GetPawnViewLocation() const override;
 
 
 protected:
@@ -95,12 +106,18 @@ protected:
 	void StartCrouch() ;
 	void StopCrouch();
 
+	void SwitchCamera();
+
+	void CreateInitialWeapon();
+	void StartWeaponAction();
+	void StopWeaponAction();
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	void SwitchCamera();
-
+	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

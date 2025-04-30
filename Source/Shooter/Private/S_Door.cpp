@@ -45,12 +45,20 @@ void AS_Door::Tick(float DeltaTime)
 
 void AS_Door::OpenDoor()
 {
-	FRotator NewRotation = FRotator(0.0f, DoorOpenAngle, 0.0f);
-	DoorMesh->SetRelativeRotation(NewRotation);
+	/*FRotator NewRotation = FRotator(0.0f, DoorOpenAngle, 0.0f);
+	DoorMesh->SetRelativeRotation(NewRotation);*/
+
+	bIsDoorOpen = true;
+	Bp_OpenDoor();
 }
 
 void AS_Door::CheckForPlayerOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (bIsDoorOpen)
+	{
+		return;
+	}
+
 	if (IsValid(OtherActor))
 	{
 		AS_Character01* PlayerCharacter = Cast<AS_Character01>(OtherActor);

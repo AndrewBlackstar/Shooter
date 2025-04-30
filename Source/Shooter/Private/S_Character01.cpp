@@ -7,6 +7,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Weapons/S_Weapon.h"
 
 // Sets default values
 AS_Character01::AS_Character01()
@@ -38,6 +39,20 @@ AS_Character01::AS_Character01()
 
 }
 
+FVector AS_Character01::GetPawnViewLocation() const
+{
+	if (IsValid(FPSCameraComponent) && bUseFirstPersonView)
+	{
+		return FPSCameraComponent->GetComponentLocation();
+	}
+	else if (IsValid(TPSCameraComponent) && !bUseFirstPersonView)
+	{
+		return TPSCameraComponent->GetComponentLocation();
+	}
+
+	return Super::GetPawnViewLocation();
+}
+
 
 // Called when the game starts or when spawned
 void AS_Character01::BeginPlay()
@@ -53,7 +68,7 @@ void AS_Character01::BeginPlay()
 	}
 	BaseWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
 	SwitchCamera();
-	
+	CreateInitialWeapon();
 }
 
 void AS_Character01::SwitchCamera()
@@ -81,6 +96,8 @@ void AS_Character01::SwitchCamera()
 	
 	
 }
+
+
 
 // Called every frame
 void AS_Character01::Tick(float DeltaTime)
@@ -115,6 +132,10 @@ void AS_Character01::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		//Crouching
 		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AS_Character01::StartCrouch);
 		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AS_Character01::StopCrouch);
+
+		//Firing
+		EnhancedInputComponent->BindAction(WeaponAction, ETriggerEvent::Started, this, &AS_Character01::StartWeaponAction);
+		EnhancedInputComponent->BindAction(WeaponAction, ETriggerEvent::Completed, this, &AS_Character01::StopWeaponAction);
 	}
 }
 
@@ -176,6 +197,39 @@ void AS_Character01::StartCrouch()
 void AS_Character01::StopCrouch()
 {
 	UnCrouch();
+}
+
+void AS_Character01::CreateInitialWeapon()
+{
+	if (IsValid(InitialWeaponClass))
+	{
+		CurrentWeapon = GetWorld()->SpawnActor<AS_Weapon>(InitialWeaponClass, GetActorLocation(), GetActorRotation());
+		if (IsValid(CurrentWeapon))
+		{
+			CurrentWeapon->SetOwner(this);
+			CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+			CurrentWeapon->StartAction();
+		}
+	}
+	
+}
+
+void AS_Character01::StartWeaponAction()
+{
+	if (IsValid(CurrentWeapon))
+	{
+		CurrentWeapon->StartAction();
+	}
+	
+}
+
+void AS_Character01::StopWeaponAction()
+{
+	if (IsValid(CurrentWeapon))
+	{
+		CurrentWeapon->StopAction();
+	}
+	
 }
 
 void AS_Character01::AddKey(FName NewKeyName)

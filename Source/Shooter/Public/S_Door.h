@@ -29,7 +29,7 @@ protected:
 
 protected:
 
-	UPROPERTY(EditAnywhere, Category = "My Door")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "My Door")
 	float DoorOpenAngle;
 
 	UPROPERTY(EditAnywhere, Category = "My Door")
@@ -46,11 +46,15 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "My Door")
+	void Bp_OpenDoor();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	void OpenDoor();
+
 
 	UFUNCTION()
 	void CheckForPlayerOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
